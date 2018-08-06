@@ -1,4 +1,4 @@
-#!\usr\bin\python
+#!\src\bin\python
 # coding=UTF-8
 import numpy as np
 from datetime import *
@@ -76,11 +76,11 @@ class linear_model:
                 f.append('13:'+ wos[index][i] + '*' + 'consecutive')
         if len(wos[index]) == 1:
             f.append('12:' + ci_minus_minus1 + '*' + ci_plus0)
-        for i in range(1, len(wos[index]) + 1):
-            if i > 4:
+        for i in range(0, len(wos[index])):
+            if i >= 4:
                 break
-            f.append('14:' + wos[index][0:i + 1])
-            f.append('15:' + wos[index][-i - 1:-1])
+            f.append('14:' + '*' + wos[index][0:i + 1])
+            f.append('15:' + '*' + wos[index][-(i + 1)::])
         return f
 
     def create_feature_space(self):
@@ -116,8 +116,16 @@ class linear_model:
         temp_score=np.zeros(self.len_tags)
         for i in range(0,self.len_tags):
             f = self.create_feature_templates(words, index)
-            temp_score[i] = self.get_score(f,i)
-            # temp_score = self.get_score_average(f,i*self.len_feature) #  权重累加版本的词性估计
+            temp_score[i] = self.get_score(f,i)  #  权重累加版本的词性估计
+        index=np.argmax(temp_score)
+        return self.tags[index]
+
+    def get_max_tag_dev(self, words, index):
+        temp_score=np.zeros(self.len_tags)
+        for i in range(0,self.len_tags):
+            f = self.create_feature_templates(words, index)
+            #temp_score[i] = self.get_score(f,i)  #  权重累加版本的词性估计
+            temp_score[i] = self.get_score_average(f,i) #  权重累加版本的词性估计
         index=np.argmax(temp_score)
         return self.tags[index]
 
@@ -157,7 +165,8 @@ class linear_model:
         right = 0
         sumup = len(words)
         for i in range(0, sumup):
-            max_tag = self.get_max_tag(words, i)
+            #max_tag = self.get_max_tag_dev(words, i) #  权重累加版本的词性估计
+            max_tag = self.get_max_tag(words, i) # #  权重累加版本的词性估计
             if max_tag == tags[i]:
                 right += 1
         return right, sumup
@@ -179,7 +188,7 @@ class linear_model:
             total += t
         pricision = 1.0 * right / total
         print('正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision))
-        with open('result2.txt', 'a+') as fr:
+        with open('result_dev.txt', 'a+') as fr:
             fr.write(filename + '正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision) + '\n')
 
 if __name__ == '__main__':
