@@ -17,8 +17,7 @@ class log_linear_model:
         self.len_feature = 0
         self.len_tags = 0
         self.weight = []  # 特征权重
-        self.v = []  # 权重累加
-        self.SA=False  #  模拟退火
+        self.SA=True  #  模拟退火
 
     def readfile(self, filename):
         words = []
@@ -98,25 +97,20 @@ class log_linear_model:
         self.len_feature=len(self.dic_feature)
         self.len_tags=len(self.tags)
         self.weight=np.zeros((self.len_tags,self.len_feature))
-        self.v=np.zeros((self.len_tags,self.len_feature))
         self.dic_tags={value:i for i,value in enumerate(self.tags)}
         print('特征空间维度：%d'%self.len_feature)
         print ('词性维度：%d'%self.len_tags)
 
-    def get_score(self, f, tag_index, SA):
+    def get_score(self, f, tag_index):
         f_index = [self.dic_feature[i] for i in f if i in self.dic_feature]
-        if SA:
-            mat=self.v
-        else:
-            mat=self.weight
-        score = np.sum(mat[tag_index, f_index])
+        score = np.sum(self.weight[tag_index, f_index])
         return score
 
-    def get_max_tag(self, words, index, SA=False):
+    def get_max_tag(self, words, index):
         temp_score=np.zeros(self.len_tags)
         for i in range(0,self.len_tags):
             f = self.create_feature_templates(words, index)
-            temp_score[i] = self.get_score(f,i,SA)
+            temp_score[i] = self.get_score(f,i)
         index=np.argmax(temp_score)
         return self.tags[index]
 
@@ -124,7 +118,7 @@ class log_linear_model:
         score = np.zeros(self.len_tags)
         for i in range(self.len_tags):
             f = self.create_feature_templates(words, index)
-            score[i] = self.get_score(f,i,SA=False)
+            score[i] = self.get_score(f,i)
         lse = logsumexp(score)
         score -= lse
         return np.exp(score)
@@ -188,7 +182,7 @@ class log_linear_model:
     def test_sentence(self,words,tags):
         right=0
         for i in range(0,len(words)):
-            max_tag=self.get_max_tag(words,i,SA=self.SA)
+            max_tag=self.get_max_tag(words,i)
             if max_tag==tags[i]:
                 right+=1
         return right,len(words)
@@ -210,12 +204,12 @@ class log_linear_model:
             total += t
         pricision = 1.0 * right / total
         print('正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision))
-        with open('result_opt_dev.txt', 'a+') as fr:
+        with open('result_opt_dev_SA.txt', 'a+') as fr:
             fr.write(filename + '正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision) + '\n')
 
 if __name__=='__main__':
     lm = log_linear_model()
     lm.getdata()
     lm.create_feature_space()
-    lm.SGD_training()
+    lm.SGD_training(40)
     lm.output()
