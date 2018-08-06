@@ -74,11 +74,11 @@ class linear_model:
                 f.append('13:'+str(tag)+'*'+wos[index][i]+'*'+'consecutive')
         if len(wos[index])==1:
             f.append('12:'+str(tag)+'*'+ci_minus_minus1+'*'+ci_plus0)
-        for i in range(1,len(wos[index])+1):
-            if i>4:
+        for i in range(0,len(wos[index])):
+            if i>=4:
                 break
             f.append('14:'+str(tag)+'*'+wos[index][0:i+1])
-            f.append('15:'+str(tag)+'*'+wos[index][-i-1:-1])
+            f.append('15:'+str(tag)+'*'+wos[index][-(i+1)::])
         return f
 
     def create_feature_space(self):
@@ -112,7 +112,7 @@ class linear_model:
         temp_score=np.zeros(self.len_tags)
         for t in range(self.len_tags):
             f=self.create_feature_templates(words,index,self.tags[t])
-            temp_score[t]=self.get_score(f)
+            temp_score[t]=self.get_score_average(f)
         index=np.argmax(temp_score)
         return self.tags[index]
 
@@ -131,7 +131,7 @@ class linear_model:
                          self.weight[f_right_index]+=1
                          f_max_index = [self.dic_feature[i] for i in f_max_tag if i in self.dic_feature]
                          self.weight[f_max_index] -= 1
-            self.v+=self.weight
+                         self.v+=self.weight
             self.test('train.conll')
             self.test('dev.conll')
 
@@ -174,5 +174,5 @@ if __name__=='__main__':
     lm = linear_model()
     lm.getdata()
     lm.create_feature_space()
-    lm.online_training(20)
+    lm.online_training(40)
     lm.output()
