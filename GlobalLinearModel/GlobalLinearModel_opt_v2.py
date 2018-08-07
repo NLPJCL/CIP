@@ -149,7 +149,6 @@ class GlobalLinearModel:
         self.v = np.zeros((self.len_tags,self.len_feature ))
         print "特征向量数目：" + str(self.len_feature)
         print "词性数目：" + str(self.len_tags)
-
     def perceptron_online_training(self, iteration=40):
         for it in range(0, iteration):
             self.start_time = time.time()
@@ -174,7 +173,7 @@ class GlobalLinearModel:
                         self.weight[index_tag_m,index_f_m] -= 1
                         index_f_p = [self.feature[i] for i in f_p if i in self.feature]
                         self.weight[index_tag_p, index_f_p] += 1
-                        self.v += self.weight
+                    self.v += self.weight
             self.testdata('train')
             self.testdata('dev')
             over_time=time.time()
