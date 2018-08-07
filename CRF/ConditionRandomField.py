@@ -10,6 +10,7 @@ class ConditionRandomField:
         self.feature = {}  # 特征向量字典
         self.dic_pos = {}  # 词性字典
         self.weight = []  # 权重字典
+        self.v=[] #  权重累加
         self.pos = []  # 词性列表
         self.len_feature = 0  # 特征向量维度
         self.len_pos = 0  # 词性维度
@@ -81,11 +82,11 @@ class ConditionRandomField:
                 f.append('13:' + wos[index][i] + '*' + 'consecutive')
         if len(wos[index]) == 1:
             f.append('12:' + ci_minus_minus1 + '*' + ci_plus0)
-        for i in range(1, 5):
-            if i > len(wos[index]):
+        for i in range(0,len(wos[index])):
+            if i>=4:
                 break
-            f.append('14:' + wos[index][0:i + 1])
-            f.append('15:' + wos[index][-i - 1::])
+            f.append('14:'+'*'+wos[index][0:i+1])
+            f.append('15:'+'*'+wos[index][-(i+1)::])
         return f
 
     def create_feature_space(self):
@@ -108,6 +109,7 @@ class ConditionRandomField:
                         self.feature[item]=len(self.feature)
         self.len_feature = len(self.feature)
         self.weight = np.zeros((self.len_pos, self.len_feature))
+        self.v=np.zeros_like(self.weight)
 
     def get_score(self, sentence, index, index_pre_tag, index_tag):
             if index==0:
@@ -130,11 +132,12 @@ class ConditionRandomField:
         for index in range(1,ls):
             f = self.create_feature_templates(sentence, index, self.pos[0])
             index_f = [self.feature[i] for i in f if i in self.feature]
-            for index_pre_tag in range(self.len_pos):
-                pre_tag = self.pos[index_pre_tag]
-                index_f[0]=self.feature['01:' + str(pre_tag)]
-                for index_tag in range(self.len_pos):
-                    score[index, index_pre_tag, index_tag] = np.sum(self.weight[index_tag, index_f])
+            for index_tag in range(self.len_pos):
+                sumup=np.sum(self.weight[index_tag, index_f[1:]])
+                for index_pre_tag in range(self.len_pos):
+                    pre_tag = self.pos[index_pre_tag]
+                    index_f0=self.feature['01:' + str(pre_tag)]
+                    score[index, index_pre_tag, index_tag] = sumup+self.weight[index_tag,index_f0]
         return score
 
     def log_alpha(self, sentence,score):
@@ -184,22 +187,16 @@ class ConditionRandomField:
             g[index_tag,index_f]+=1
         f = self.create_feature_templates(sentence, 0, 'NULL')
         fs = [self.feature[k] for k in f]
-        #for t in range(self.len_pos):
         g[:, fs] -=p[0, 0, :,np.newaxis]
         for i in range(1,len(sentence)):
             f = self.create_feature_templates(sentence, i, self.pos[0])
             fs = [self.feature[k] for k in f]
             for t_ in range(self.len_pos):
                 fs[0]=self.feature['01:' + str(self.pos[t_])]
-                #f = self.create_feature_templates(sentence, i, self.pos[t_])
-                #fs = [self.feature[k] for k in f]
-                #for t in range(self.len_pos):
-                    #p1 = p[i, t_, t]
-                    #g[t, fs] -= p1
                 g[:, fs] -=p[i,t_,:,np.newaxis]
         return g
 
-    def training(self, iteration=40):
+    def training(self, iteration=60):
         for it in range(iteration):
             starttime = datetime.today()
             for index_sen in range(0, self.len_sentences_train):
@@ -207,16 +204,17 @@ class ConditionRandomField:
                 tags = self.tags_train[index_sen]
                 g = self.cal_grad(sentence,tags)
                 self.weight += g
+                self.v+=self.weight
             print 'Time(Train):' + str((datetime.today() - starttime))
             #self.testdata('train')
             #print 'Time(Train+test train):' + str((datetime.today() - starttime))
-            if it>=20:
-                self.testdata('dev')
-                print 'Time(all):' + str((datetime.today() - starttime))
+            self.testdata('dev')
+            print 'Time(all):' + str((datetime.today() - starttime))
 
     def get_max_score_path(self, sentence):
         MIN = -10
         path_max = []
+        w=self.v
         dim_tags = self.len_pos  # 词性维度
         len_sen = len(sentence)  # 句子单词个数
         score_prob = np.zeros((len_sen, dim_tags))  # 得分矩阵
@@ -224,7 +222,7 @@ class ConditionRandomField:
         score_path[0] = np.array([-1] * dim_tags)
         f = self.create_feature_templates(sentence, 0, '<BOS>')
         h = [self.feature[j] for j in f if j in self.feature]
-        score_prob[0]=[np.sum(self.weight[i, h]) for i in range(dim_tags)]
+        score_prob[0]=[np.sum(w[i, h]) for i in range(dim_tags)]
         score_prob[1:,:]=MIN
         if len_sen > 1:
             for i in range(1, len_sen):
@@ -232,12 +230,12 @@ class ConditionRandomField:
                     temp_prob = np.zeros(dim_tags)
                     f = self.create_feature_templates(sentence, i, self.pos[0])
                     h = [self.feature[ii] for ii in f if ii in self.feature]
-                    sum=np.sum(self.weight[j, h[1:]])
+                    sumup=np.sum(w[j, h[1:]])
                     for k in range(dim_tags):  # 路径搜索
                         h[0]=self.feature['01:' + str(self.pos[k])]
                         #temp_prob[k]=np.sum(self.weight[j, h])+score_prob[i - 1][k]
-                        temp_prob[k] = sum+self.weight[j,h[0]] + score_prob[i - 1][k]
-                    score_prob[i,j]=np.max(temp_prob)
+                        temp_prob[k] = w[j,h[0]] + score_prob[i - 1][k]
+                    score_prob[i,j]=np.max(temp_prob)+sumup
                     score_path[i,j]=np.argmax(temp_prob)
         # 回溯最优路径
         a = score_prob[len_sen - 1]
@@ -274,11 +272,10 @@ class ConditionRandomField:
             total += t
         accuracy = match * 1.0 / total
         print 'Right:' + str(match) + 'Total:' + str(total) + 'Accuracy:' + str(accuracy)
-        with open('result2.txt', 'a') as fr:
+        with open('result3.txt', 'a') as fr:
             fr.write(dataset + 'Right:' + str(match) + 'Total:' + str(total) + 'Accuracy:' + str(
                 accuracy) + '\n')
         return accuracy
-
 
 if __name__ == '__main__':
     CRF = ConditionRandomField()
