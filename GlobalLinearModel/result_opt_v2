@@ -78,3 +78,125 @@ devRight:43884Total:50319Accuracy:0.872115900554
 trainRight:20454Total:20454Accuracy:1.0
 devRight:43884Total:50319Accuracy:0.872115900554
 trainRight:20454Total:20454Accuracy:1.0
+
+权重累加：
+trainRight:19019Total:20454Accuracy:0.92984257358
+devRight:42222Total:50319Accuracy:0.839086627318
+迭代：0	用时222.976999998s
+trainRight:19954Total:20454Accuracy:0.975554903686
+devRight:43595Total:50319Accuracy:0.866372543175
+迭代：1	用时227.958999872s
+trainRight:20210Total:20454Accuracy:0.988070792999
+devRight:43825Total:50319Accuracy:0.870943381228
+迭代：2	用时227.168000221s
+trainRight:20322Total:20454Accuracy:0.993546494573
+devRight:43962Total:50319Accuracy:0.873666010851
+迭代：3	用时222.257999897s
+trainRight:20378Total:20454Accuracy:0.99628434536
+devRight:44099Total:50319Accuracy:0.876388640474
+迭代：4	用时221.889999866s
+trainRight:20410Total:20454Accuracy:0.997848831524
+devRight:44145Total:50319Accuracy:0.877302808084
+迭代：5	用时221.529999971s
+trainRight:20421Total:20454Accuracy:0.998386623643
+devRight:44192Total:50319Accuracy:0.878236848904
+迭代：6	用时218.039000034s
+trainRight:20429Total:20454Accuracy:0.998777745184
+devRight:44199Total:50319Accuracy:0.878375961366
+迭代：7	用时220.321000099s
+trainRight:20433Total:20454Accuracy:0.998973305955
+devRight:44178Total:50319Accuracy:0.877958623979
+迭代：8	用时221.607999802s
+trainRight:20441Total:20454Accuracy:0.999364427496
+devRight:44184Total:50319Accuracy:0.878077863233
+迭代：9	用时226.298000097s
+trainRight:20444Total:20454Accuracy:0.999511098074
+devRight:44172Total:50319Accuracy:0.877839384725
+迭代：10	用时224.566999912s
+trainRight:20444Total:20454Accuracy:0.999511098074
+devRight:44139Total:50319Accuracy:0.877183568831
+迭代：11	用时225.902000189s
+trainRight:20446Total:20454Accuracy:0.999608878459
+devRight:44131Total:50319Accuracy:0.877024583159
+迭代：12	用时227.799999952s
+trainRight:20447Total:20454Accuracy:0.999657768652
+devRight:44135Total:50319Accuracy:0.877104075995
+迭代：13	用时222.258999825s
+trainRight:20449Total:20454Accuracy:0.999755549037
+devRight:44138Total:50319Accuracy:0.877163695622
+迭代：14	用时216.440999985s
+trainRight:20449Total:20454Accuracy:0.999755549037
+devRight:44120Total:50319Accuracy:0.876805977861
+迭代：15	用时216.179000139s
+trainRight:20452Total:20454Accuracy:0.999902219615
+devRight:44115Total:50319Accuracy:0.876706611817
+迭代：16	用时216.398999929s
+trainRight:20453Total:20454Accuracy:0.999951109807
+devRight:44112Total:50319Accuracy:0.87664699219
+迭代：17	用时216.210999966s
+trainRight:20453Total:20454Accuracy:0.999951109807
+devRight:44089Total:50319Accuracy:0.876189908385
+迭代：18	用时216.100999832s
+trainRight:20453Total:20454Accuracy:0.999951109807
+devRight:44092Total:50319Accuracy:0.876249528011
+迭代：19	用时216.023000002s
+trainRight:20453Total:20454Accuracy:0.999951109807
+devRight:44099Total:50319Accuracy:0.876388640474
+迭代：20	用时216.304000139s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44110Total:50319Accuracy:0.876607245772
+迭代：21	用时216.320999861s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44102Total:50319Accuracy:0.876448260101
+迭代：22	用时39284.852s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44097Total:50319Accuracy:0.876348894056
+迭代：23	用时219.992000103s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44093Total:50319Accuracy:0.87626940122
+迭代：24	用时220.070999861s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44096Total:50319Accuracy:0.876329020847
+迭代：25	用时219.59100008s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44101Total:50319Accuracy:0.876428386892
+迭代：26	用时218.652999878s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44097Total:50319Accuracy:0.876348894056
+迭代：27	用时219.851000071s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44095Total:50319Accuracy:0.876309147638
+迭代：28	用时218.460999966s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44087Total:50319Accuracy:0.876150161967
+迭代：29	用时219.992000103s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44089Total:50319Accuracy:0.876189908385
+迭代：30	用时220.70600009s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44063Total:50319Accuracy:0.875673204952
+迭代：31	用时220.039000034s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44065Total:50319Accuracy:0.87571295137
+迭代：32	用时222.585999966s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44054Total:50319Accuracy:0.875494346072
+迭代：33	用时220.007999897s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44048Total:50319Accuracy:0.875375106818
+迭代：34	用时218.854000092s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44042Total:50319Accuracy:0.875255867565
+迭代：35	用时220.864000082s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44042Total:50319Accuracy:0.875255867565
+迭代：36	用时219.882999897s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44042Total:50319Accuracy:0.875255867565
+迭代：37	用时219.958999872s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44041Total:50319Accuracy:0.875235994356
+迭代：38	用时222.296999931s
+trainRight:20454Total:20454Accuracy:1.0
+devRight:44030Total:50319Accuracy:0.875017389058
+迭代：39	用时219.279000044s
