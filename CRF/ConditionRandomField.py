@@ -196,20 +196,67 @@ class ConditionRandomField:
                 g[:, fs] -=p[i,t_,:,np.newaxis]
         return g
 
-    def training(self, iteration=60):
+        def training(self, iteration=60,step_opt=False,added=False,regulization=False):
+
+        C = 0.0001
+        global_step = 1
+        decay_rate = 0.96
+        decay_steps = 100000
+        eta = 0.5
+        learn_rate = eta
+
+        init_eta=0.5
+        c=0.0001
+        _lamda=c/10000
+        _t0=1/(_lamda*init_eta)
+        _t=0
+
         for it in range(iteration):
             starttime = datetime.today()
             for index_sen in range(0, self.len_sentences_train):
                 sentence = self.sentences_train[index_sen]
                 tags = self.tags_train[index_sen]
                 g = self.cal_grad(sentence,tags)
-                self.weight += g
-                self.v+=self.weight
+                if added:
+                    self.weight+=g
+                    self.v+=self.weight
+
+                #正则+步长优化  1：
+                # if regulization:
+                #     self.weight *= (1 - C * eta)
+                # if step_opt:
+                #     self.weight+=learn_rate*g
+                #     learn_rate=eta*decay_rate**(global_step/decay_steps)
+                #     global_step+=1
+                # else:
+                #     self.weight += g
+
+                #正则+步长优化  2：
+                if regulization:
+                    self.weight *= (1 - C)
+                if step_opt:
+                    _eta=1/(_lamda*(_t0+_t))
+                    self.weight+=_eta*g
+                    _t+=1
+                else:
+                    self.weight += g
+
+                # 正则+步长优化  3：
+                # if regulization:
+                #     self.weight *= (1 - C * learn_rate)
+                # if step_opt:
+                #     self.weight+=eta*g
+                #     learn_rate=eta*decay_rate**(global_step/decay_steps)
+                #     global_step+=1
+                # else:
+                #     self.weight += g
+
             print 'Time(Train):' + str((datetime.today() - starttime))
             #self.testdata('train')
             #print 'Time(Train+test train):' + str((datetime.today() - starttime))
             self.testdata('dev')
-            print 'Time(all):' + str((datetime.today() - starttime))
+            with open('result_z.txt', 'a') as fr:
+                fr.write('Time(all):' + str((datetime.today() - starttime))+ '\n')
 
     def get_max_score_path(self, sentence):
         MIN = -10
