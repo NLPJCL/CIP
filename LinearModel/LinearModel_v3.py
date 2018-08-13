@@ -19,7 +19,9 @@ class linear_model:
         self.len_tags=0
         self.weight=[] #  特征权重
         self.v=[] #  权重累加
+        self.feat_words=[]
         self.average=True
+        self.output_file='result_test_big.txt'
 
     def readfile(self,filename):
         words=[]
@@ -68,35 +70,45 @@ class linear_model:
         f.append('03:'+str(tag)+'*'+wi_minus)
         f.append('04:'+str(tag)+'*'+wi_plus)
         f.append('05:'+str(tag)+'*'+wos[index]+'*'+ci_minus_minus1)
-        f.append('06:'+str(tag)+'*'+wos[index]+ci_plus0)
+        f.append('06:'+str(tag)+'*'+wos[index]+'*'+ci_plus0)
         f.append('07:'+str(tag)+'*'+ci0)
         f.append('08:'+str(tag)+'*'+ci_minus1)
         for i in range(1,len(wos[index])-1):
             f.append('09:'+str(tag)+'*'+wos[index][i])
             f.append('10:'+str(tag)+'*'+wos[index][0]+'*'+wos[index][i])
             f.append('11:'+str(tag)+'*'+wos[index][-1]+'*'+wos[index][i])
-            if wos[index][i]==wos[index][i+1]:
-                f.append('13:'+str(tag)+'*'+wos[index][i]+'*'+'consecutive')
         if len(wos[index])==1:
-            f.append('12:'+str(tag)+'*'+ci_minus_minus1+'*'+ci_plus0)
-        for i in range(0,len(wos[index])):
-            if i>=4:
+            f.append('12:' +str(tag)+'*'+ wos[index] + '*' + ci_minus_minus1 + '*' + ci_plus0)
+        for i in range(0, len(wos[index]) - 1):
+            if wos[index][i] == wos[index][i + 1]:
+                f.append('13:' +str(tag)+'*'+ wos[index][i] + '*' + 'consecutive')
+        for i in range(0,4):
+            if i>len(words[index])-1:
                 break
             f.append('14:'+str(tag)+'*'+wos[index][0:i+1])
             f.append('15:'+str(tag)+'*'+wos[index][-(i+1)::])
         return f
 
     def create_feature_space(self):
+
         for i in range(0,len(self.words)):
             cur_words=self.words[i]
+            cur_tags=self.pos[i]
+            f_indexs = []
             for j in range(0,len(cur_words)):
-                tag=self.pos[i][j]
+                tag=cur_tags[j]
+                f_index = []
                 f=self.create_feature_templates(cur_words,j,tag)
                 for feat in f:
                     if feat not in self.dic_feature:
+                        f_index.append(len(self.dic_feature))
                         self.dic_feature[feat]=len(self.dic_feature)
+                    else:
+                        f_index.append(self.dic_feature[feat])
+                f_indexs.append(f_index)
                 if tag not in self.tags:
                     self.tags.append(tag)
+            self.feat_words.append(f_indexs)
         self.len_feature=len(self.dic_feature)
         self.len_tags=len(self.tags)
         self.weight=np.zeros(self.len_feature)
@@ -132,25 +144,27 @@ class linear_model:
                     max_tag=self.get_max_tag(cur_sen,index_word)
                     right_tag=self.pos[index_sen][index_word]
                     if max_tag!=right_tag:
-                         f_right_tag=self.create_feature_templates(cur_sen,index_word,right_tag)
+                         #f_right_tag=self.create_feature_templates(cur_sen,index_word,right_tag)
                          f_max_tag=self.create_feature_templates(cur_sen,index_word,max_tag)
-                         f_right_index=[self.dic_feature[i] for i in f_right_tag]
+                         #f_right_index=[self.dic_feature[i] for i in f_right_tag]
+                         f_right_index=self.feat_words[index_sen][index_word]
                          f_max_index = [self.dic_feature[i] for i in f_max_tag if i in self.dic_feature]
-                         if average:
-                             self.v[f_right_index]+=(k*np.ones_like(f_right_index)-R[f_right_index])*self.weight[f_right_index]
-                             self.v[f_max_index] += (k * np.ones_like(f_max_index) - R[f_max_index]) * \
-                                                      self.weight[f_max_index]
-                             R[f_right_index] = k
-                             R[f_max_index] = k
-                             k += 1
+                         # if average:
+                         #     self.v[f_right_index]+=(k*np.ones_like(f_right_index)-R[f_right_index])*self.weight[f_right_index]
+                         #     self.v[f_max_index] += (k * np.ones_like(f_max_index) - R[f_max_index]) * \
+                         #                              self.weight[f_max_index]
+                         #     R[f_right_index] = k
+                         #     R[f_max_index] = k
+                         #     k += 1
 
                          self.weight[f_right_index] += 1
                          self.weight[f_max_index] -= 1
-
-            self.test('test.conll')
-            self.test('dev.conll')
-            with open('result_big_average.txt', 'a+') as fr:
-                fr.write('时长：'+str(datetime.today()-start_time)+'\n')
+                         self.v+=self.weight
+            if it>13:
+                self.test('test.conll')
+                self.test('dev.conll')
+                with open(self.output_file, 'a+') as fr:
+                    fr.write(str(it) + '\t时长：' + str(datetime.today() - start_time) + '\n')
 
     def output(self):
         with open('model.txt','w+') as fm:
@@ -187,7 +201,7 @@ class linear_model:
             total+=t
         pricision=1.0*right/total
         print('正确：'+str(right)+'总数：'+str(total)+'正确率:'+str(pricision))
-        with open('result_big_average.txt','a+') as fr:
+        with open(self.output_file,'a+') as fr:
             fr.write(filename+ '正确：'+str(right)+'总数：'+str(total)+'正确率:'+str(pricision)+'\n')
 
 if __name__=='__main__':
