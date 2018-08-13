@@ -21,6 +21,7 @@ class linear_model:
         self.weight = []  # 特征权重
         self.v = []  # 权重累加
         self.average=False
+        self.output_file='result_opt.txt'
 
     def readfile(self,filename):
         words=[]
@@ -76,15 +77,13 @@ class linear_model:
             f.append('09:'+ wos[index][i])
             f.append('10:'+ wos[index][0] + '*' + wos[index][i])
             f.append('11:'+ wos[index][-1] + '*' + wos[index][i])
-            if wos[index][i] == wos[index][i - 1]:
-                f.append('13:' + wos[index][i] + '*' + 'consecutive')
         if len(wos[index]) == 1:
             f.append('12:'+wos[index]+'*'+ci_minus_minus1 + '*' + ci_plus0)
         for i in range(0, len(wos[index]) - 1):
             if wos[index][i] == wos[index][i + 1]:
                 f.append('13:' + wos[index][i] + '*' + 'consecutive')
-        for i in range(0, len(wos[index])):
-            if i >= 4:
+        for i in range(0,4):
+            if i>len(words[index])-1:
                 break
             f.append('14:' + wos[index][0:i + 1])
             f.append('15:' + wos[index][-(i + 1)::])
@@ -93,8 +92,9 @@ class linear_model:
     def create_feature_space(self):
         for i in range(0, len(self.words)):
             cur_words = self.words[i]
+            cur_tags=self.pos[i]
             for j in range(0, len(cur_words)):
-                tag = self.pos[i][j]
+                tag = cur_tags[j]
                 f = self.create_feature_templates(cur_words, j)
                 for feat in f:
                     if feat not in self.dic_feature:
@@ -127,38 +127,44 @@ class linear_model:
         index=np.argmax(temp_score)
         return self.tags[index],fs[index]
 
-    def online_training(self,iteration=20,average=False):
+    def online_training(self,iteration=40,average=False):
+
         R = np.zeros_like(self.weight)  # 时间戳标记
         k = 1  # weight 更新次数
         for it in range(0, iteration):
             print '当前迭代：' + str(it)
+            last_r=0
             start_time = datetime.today()
             for index_sen in range(0,len(self.words)):
                 cur_sen=self.words[index_sen]
+                cur_tags=self.pos[index_sen]
                 for index_word in range(0,len(cur_sen)):
                     max_tag, f_max_tag = self.get_max_tag(cur_sen, index_word)
-                    right_tag=self.pos[index_sen][index_word]
+                    right_tag=cur_tags[index_word]
                     if max_tag!=right_tag:
-                        f_right_tag = self.create_feature_templates(self.words[index_sen], index_word)
+                        f_right_tag = self.create_feature_templates(cur_sen, index_word)
                         index_right_tag=self.dic_tags[right_tag]
                         index_max_tag=self.dic_tags[max_tag]
                         f_right_index = [self.dic_feature[i] for i in f_right_tag]
                         f_max_index = [self.dic_feature[i] for i in f_max_tag if i in self.dic_feature]
-                        if average:
-                            t_right= k * np.ones_like(f_right_index) - R[index_right_tag,f_right_index]
-                            t_max= k * np.ones_like(f_max_index) - R[index_max_tag, f_max_index]
-                            self.v[index_right_tag,f_right_index] += t_right * self.weight[index_right_tag,f_right_index]
-                            self.v[index_max_tag,f_max_index] += t_max * self.weight[index_max_tag,f_max_index]
-                            R[index_right_tag,f_right_index] = k
-                            R[index_max_tag,f_max_index] = k
-                            k += 1
+                        # if average:
+                        #     t_right= k * np.ones_like(f_right_index) - R[index_right_tag,f_right_index]
+                        #     t_max= k * np.ones_like(f_max_index) - R[index_max_tag, f_max_index]
+                        #     self.v[index_right_tag,f_right_index] += t_right * self.weight[index_right_tag,f_right_index]
+                        #     self.v[index_max_tag,f_max_index] += t_max * self.weight[index_max_tag,f_max_index]
+                        #     R[index_right_tag,f_right_index] = k
+                        #     R[index_max_tag,f_max_index] = k
+                        #     k += 1
                         self.weight[index_right_tag, f_right_index] += 1
                         self.weight[index_max_tag,f_max_index] -= 1
-                        #self.v+=self.weight
+                        self.v+=self.weight
             self.test('test.conll')
-            self.test('dev.conll')
-            with open('result_opt.txt', 'a+') as fr:
-                fr.write('时长：'+str(datetime.today()-start_time)+'\n')
+            cur_r=self.test('dev.conll')
+            with open(self.output_file, 'a+') as fr:
+                fr.write(str(it)+'\t时长：'+str(datetime.today()-start_time)+'\n')
+            if last_r==cur_r:
+                break
+            last_r=cur_r
 
     def output(self):
         with open('model2.txt', 'w+') as fm:
@@ -198,8 +204,9 @@ class linear_model:
             total += t
         pricision = 1.0 * right / total
         print('正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision))
-        with open('result_opt.txt', 'a+') as fr:
+        with open(self.output_file, 'a+') as fr:
             fr.write(filename + '正确：' + str(right) + '总数：' + str(total) + '正确率:' + str(pricision) + '\n')
+        return right
 
 if __name__ == '__main__':
     lm = linear_model()
