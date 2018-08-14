@@ -21,7 +21,7 @@ class linear_model:
         self.v=[] #  权重累加
         self.feat_words=[]
         self.average=True
-        self.output_file='result_test_big.txt'
+        self.output_file='result_big_average.txt'
 
     def readfile(self,filename):
         words=[]
@@ -208,5 +208,5 @@ if __name__=='__main__':
     lm = linear_model()
     lm.getdata()
     lm.create_feature_space()
-    lm.online_training(40,lm.average)
+    lm.online_training(60,lm.average)
     #lm.output()
