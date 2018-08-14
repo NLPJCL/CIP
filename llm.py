@@ -46,7 +46,7 @@ class LogLinearModel(object):
         # 训练集大小
         n = len(training_data)
         # 迭代指定次数训练模型
-        for epoch in range(epochs):
+        for epoch in range(1, epochs + 1):
             start = datetime.now()
             # 随机打乱数据
             if shuffle:
@@ -83,7 +83,7 @@ class LogLinearModel(object):
                 break
         print("max precision of dev is %4f at epoch %d" %
               (max_precision, max_e))
-        print("mean time of each epoch is %ss" % (total_time / (epoch + 1)))
+        print("mean time of each epoch is %ss" % (total_time / epoch))
 
     def update(self, batch, lmbda, n, eta):
         gradients = defaultdict(float)
