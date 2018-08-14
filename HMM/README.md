@@ -26,7 +26,6 @@
     }
     $ cd ./src
     $ python3 HMM.py			#修改config.py中的参数
-    $ python HMM.py			#修改config.py中的参数
 ### 3.参考结果
 #### (1)小数据测试
 
