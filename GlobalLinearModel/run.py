@@ -32,7 +32,7 @@ else:
 # 根据参数读取配置
 config = Config(args.bigdata)
 
-print("Preprocessing the data")
+print("Preprocess the data")
 corpus = Corpus(config.ftrain)
 train = corpus.load(config.ftrain)
 dev = corpus.load(config.fdev)
@@ -40,7 +40,7 @@ file = args.file if args.file else config.glmpkl
 
 start = datetime.now()
 
-print("Creating Global Linear Model with %d tags" % corpus.nt)
+print("Create Global Linear Model with %d tags" % corpus.nt)
 if args.optimize:
     print("\tuse feature extracion optimization")
 if args.average:
@@ -49,11 +49,11 @@ if args.shuffle:
     print("\tshuffle the data at each epoch")
 glm = GlobalLinearModel(corpus.nt)
 
-print("Using %d sentences to create the feature space" % corpus.ns)
+print("Use %d sentences to create the feature space" % corpus.ns)
 glm.create_feature_space(train)
 print("The size of the feature space is %d" % glm.d)
 
-print("Using online-training algorithm to train the model")
+print("Use online-training algorithm to train the model")
 glm.online(train, dev, file,
            epochs=config.epochs,
            interval=config.interval,

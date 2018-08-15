@@ -71,18 +71,18 @@ def evaluate(fout, fdata):
 
 
 if __name__ == '__main__':
-    print("Creating dict of given data")
+    print("Create dict of given data")
     max_num, total = create_dict(DATA, DICT)
     print("A total of %d different words, of which the max len is %d" %
           (total, max_num))
 
-    print("Creating text of given data")
+    print("Create text of given data")
     create_text(DATA, TEXT)
 
-    print("Segmenting the words in text")
+    print("Segment the words in text")
     max_match(TEXT, DICT, OUTPUT, max_num)
 
-    print("Evaluating the result")
+    print("Evaluate the result")
     tp, total_out, total_data, P, R, F = evaluate(OUTPUT, DATA)
     print("Precision: %d / %d = %4f" % (tp, total_out, P))
     print("Recall: %d / %d = %4f" % (tp, total_data, R))
