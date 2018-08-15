@@ -1,9 +1,9 @@
-Preprocessing the data
-Creating Linear Model with 31 tags
+Preprocess the data
+Create Linear Model with 31 tags
 	use feature extracion optimization
-Using 803 sentences to create the feature space
+Use 803 sentences to create the feature space
 The size of the feature space is 67359
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 	epochs: 100
 	interval: 5
 Epoch 1 / 100:
@@ -70,12 +70,12 @@ max precision of dev is 0.854588 at epoch 9
 mean time of each epoch is 0:00:02.118205s
 0:00:32.915633s elapsed
 
-Preprocessing the data
-Creating Linear Model with 35 tags
+Preprocess the data
+Create Linear Model with 35 tags
 	use feature extracion optimization
-Using 46572 sentences to create the feature space
+Use 46572 sentences to create the feature space
 The size of the feature space is 1400192
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 	epochs: 100
 	interval: 10
 Epoch 1 / 100:

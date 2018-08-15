@@ -1,10 +1,10 @@
-Preprocessing the data
-Creating Global Linear Model with 31 tags
+Preprocess the data
+Create Global Linear Model with 31 tags
 	use average perceptron
 	shuffle the data at each epoch
-Using 803 sentences to create the feature space
+Use 803 sentences to create the feature space
 The size of the feature space is 81541
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 Epoch 1 / 100:
 	train: 19288 / 20454 = 0.942994
 	dev: 42710 / 50319 = 0.848785
@@ -105,13 +105,13 @@ max precision of dev is 0.877243 at epoch 18
 mean time of each epoch is 0:00:22.012788s
 0:08:49.166453s elapsed
 
-Preprocessing the data
-Creating Global Linear Model with 35 tags
+Preprocess the data
+Create Global Linear Model with 35 tags
 	use average perceptron
 	shuffle the data at each epoch
-Using 46572 sentences to create the feature space
+Use 46572 sentences to create the feature space
 The size of the feature space is 1688542
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 Epoch 1 / 100:
 	train: 1006689 / 1057943 = 0.951553
 	dev: 55878 / 59955 = 0.931999

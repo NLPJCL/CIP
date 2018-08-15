@@ -1,9 +1,9 @@
-Preprocessing the data
-Creating Global Linear Model with 31 tags
+Preprocess the data
+Create Global Linear Model with 31 tags
 	use feature extracion optimization
-Using 803 sentences to create the feature space
+Use 803 sentences to create the feature space
 The size of the feature space is 67391
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 Epoch 1 / 100:
 	train: 18712 / 20454 = 0.914833
 	dev: 41048 / 50319 = 0.815755
@@ -92,12 +92,12 @@ max precision of dev is 0.873169 at epoch 15
 mean time of each epoch is 0:00:04.862168s
 0:01:43.414547s elapsed
 
-Preprocessing the data
-Creating Global Linear Model with 35 tags
+Preprocess the data
+Create Global Linear Model with 35 tags
 	use feature extracion optimization
-Using 46572 sentences to create the feature space
+Use 46572 sentences to create the feature space
 The size of the feature space is 1400228
-Using online-training algorithm to train the model
+Use online-training algorithm to train the model
 Epoch 1 / 100:
 	train: 978113 / 1057943 = 0.924542
 	dev: 53837 / 59955 = 0.897957
