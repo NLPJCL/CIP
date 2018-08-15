@@ -42,6 +42,8 @@ optional arguments:
   --optimize, -o  use feature extracion optimization
   --shuffle, -s   shuffle the data at each epoch
   --file FILE, -f FILE  set where to store the model
+# eg: 特征提取优化+权重累加+打乱数据
+$ python run.py -b --optimize --average --shuffle 
 ```
 
 ## 结果
