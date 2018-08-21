@@ -1,3 +1,6 @@
+step:0.5
+regularization:True
+step_opt:True
 dev.conll	Right:43333Total:50319Accuracy:0.861165762436
 迭代：0	Time(all):0:01:13.998000
 dev.conll	Right:43154Total:50319Accuracy:0.857608458038
