@@ -1,6 +1,6 @@
 import numpy as np
 import datetime
-
+from itertools import chain
 from config import config
 
 train_data_file = config['train_data_file']
@@ -36,31 +36,32 @@ class Binary_HMM(object):
     # 属性5: launch_matrix发射概率矩阵,第(i,j)个元素表示词性i发射到词j的概率,最后一列是未知词
     def __init__(self, train_data):
         self.train_data = train_data
-        self.tag_dict = {}
-        self.word_dict = {}
-        for sentence in train_data:
-            for word, tag in sentence:
-                if word not in self.word_dict.keys():
-                    self.word_dict[word] = len(self.word_dict)
-                if tag not in self.tag_dict.keys():
-                    self.tag_dict[tag] = len(self.tag_dict)
 
-        self.tag_dict['BOS'] = len(self.tag_dict)
-        self.tag_dict['EOS'] = len(self.tag_dict)
-        self.word_dict['???'] = len(self.word_dict)
+        sen_seq, tag_seq = zip(*(chain(*train_data)))
+        word_list = list(sorted(set(sen_seq)))
+        tag_list = list(sorted(set(tag_seq)))
+        word_list.append('<UNK>')
+        tag_list.append('<BOS>')
+        tag_list.append('<EOS>')
+
+        self.tag_dict = {tag: id for id, tag in enumerate(tag_list)}
+        self.word_dict = {word: id for id, word in enumerate(word_list)}
 
         self.transition_matrix = np.zeros(
             [len(self.tag_dict) - 1, len(self.tag_dict) - 1])  # 第(i,j)个元素表示词性j在词性i后面的概率,最后一行是start，最后一列是stop
-        self.launch_matrix = np.zeros([len(self.tag_dict) - 2, len(self.word_dict)])  # 第(i,j)个元素表示词性i发射到词j的概率
+        self.launch_matrix = np.zeros(
+            [len(self.tag_dict) - 2, len(self.word_dict)])  # 第(i,j)个元素表示词性i发射到词j的概率
 
     def launch_params(self, alpha):
         for sentence in self.train_data:
             for word, tag in sentence:
-                self.launch_matrix[self.tag_dict[tag]][self.word_dict[word]] += 1
+                self.launch_matrix[self.tag_dict[tag]
+                                   ][self.word_dict[word]] += 1
         for i in range(len(self.launch_matrix)):
             s = sum(self.launch_matrix[i])
             for j in range(len(self.launch_matrix[i])):
-                self.launch_matrix[i][j] = (self.launch_matrix[i][j] + alpha) / (s + alpha * (len(self.word_dict)))
+                self.launch_matrix[i][j] = (
+                    self.launch_matrix[i][j] + alpha) / (s + alpha * (len(self.word_dict)))
 
     def transition_params(self, alpha):
         for i in range(len(self.train_data)):
@@ -68,7 +69,8 @@ class Binary_HMM(object):
                 if j == 0:
                     self.transition_matrix[-1][self.tag_dict[train_data[i][j][1]]] += 1
                 elif j == len(self.train_data[i]):
-                    self.transition_matrix[self.tag_dict[train_data[i][j - 1][1]]][-1] += 1
+                    self.transition_matrix[self.tag_dict[train_data[i]
+                                                         [j - 1][1]]][-1] += 1
                 else:
                     self.transition_matrix[self.tag_dict[train_data[i][j - 1][1]]][
                         self.tag_dict[train_data[i][j][1]]] += 1
@@ -77,7 +79,7 @@ class Binary_HMM(object):
             s = sum(self.transition_matrix[i])
             for j in range(len(self.transition_matrix[i])):
                 self.transition_matrix[i][j] = (self.transition_matrix[i][j] + alpha) / (
-                        s + alpha * (len(self.tag_dict) - 1))
+                    s + alpha * (len(self.tag_dict) - 1))
                 # self.transition_matrix[i][j]/=s
 
     def write_matrix(self, matrix, path):
@@ -89,66 +91,37 @@ class Binary_HMM(object):
         f.close()
 
     def viterbi(self, word_list):
-        word_index = []
-        for word in word_list:
-            if word in self.word_dict.keys():
-                word_index.append(self.word_dict[word])
-            else:
-                word_index.append(self.word_dict['???'])
+        word_index = list(map(lambda x: self.word_dict.get(
+            x, self.word_dict['<UNK>']), word_list))
 
-        states = len(word_list) + 1
+        states = len(word_list)
         type = len(self.tag_dict) - 2
         max_p = np.zeros((states, type))
         path = np.zeros((states, type))
 
-        # 遇到0会自动变成-inf，但会有警告
-        # max_p = np.log(max_p)
         launch_matrix = np.log(self.launch_matrix)
         transition_matrix = np.log(self.transition_matrix)
 
-        # max_p = max_p
-        # launch_matrix = self.launch_matrix
-        # transition_matrix = self.transition_matrix
         # 初始化起始状态
-        for i in range(type):
-            path[0][i] = -1
-            max_p[0][i] = transition_matrix[-1][i] + launch_matrix[i][word_index[0]]
+        max_p[0] = transition_matrix[-1, :-1]+launch_matrix[:, word_index[0]]
+        path[0] = np.full((type), -1)
 
         # 动态规划
         for i in range(1, states):
-            # 到达end状态有点区别
-            if i == states - 1:
-                for k in range(type):
-                    max_p[i][k] = max_p[i - 1][k] + transition_matrix[k][-1]
-                    last_path = k
-                    path[i][k] = last_path
-            else:
-                for j in range(type):
-                    # 最原始的viterbi算法,需要三层循环，执行速度大约1分多钟
-                    # last_path = -1
-                    # for k in range(type):
-                    #     score = max_p[i - 1][k] + transition_matrix[k][j] + launch_matrix[j][
-                    #         word_index[i]]
-                    #     if score > max_p[i][j]:
-                    #         max_p[i][j] = score
-                    #         last_path = k
-                    # path[i][j] = last_path
+            score = transition_matrix[:-1, :-1]+launch_matrix[:,
+                    word_index[i]]+max_p[i-1].reshape(type, 1)
+            max_p[i] = np.max(score, axis=0)
+            path[i] = np.argmax(score, axis=0)
 
-                    # 利用numpy特性可以减少一层循环，加快速度
-                    prob = max_p[i - 1] + transition_matrix[:-1, j] + launch_matrix[j][word_index[i]]
-                    path[i][j] = np.argmax(prob)
-                    max_p[i][j] = max(prob)
+        max_p[-1] += transition_matrix[:-1, -1]
 
-        gold_path = []
-        cur_state = states - 1
-        step = np.argmax(max_p[cur_state])
-        while (True):
-            step = int(path[cur_state][step])
-            if step == -1:
-                break
-            gold_path.insert(0, step)
-            cur_state -= 1
-        return gold_path
+        prev = np.argmax(max_p[-1])
+        predict = [prev]
+
+        for i in range(states-1, 0, -1):
+            prev = int(path[i][prev])
+            predict.insert(0, prev)
+        return predict
 
     def evaluate(self, test_data):
         total_words = 0
@@ -167,7 +140,8 @@ class Binary_HMM(object):
             predict = self.viterbi(word_list)
             total_words += len(sentence)
             for i in range(len(predict)):
-                f.write(word_list[i] + '	_	' + list(self.tag_dict.keys())[predict[i]] + '\n')
+                f.write(word_list[i] + '	_	' +
+                        list(self.tag_dict.keys())[predict[i]] + '\n')
                 if predict[i] == self.tag_dict[tag_list[i]]:
                     correct_words += 1
             f.write('\n')

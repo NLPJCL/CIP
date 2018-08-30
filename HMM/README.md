@@ -54,7 +54,7 @@ $ python src/HMM.py			#修改config.py中的参数
 | 测试集    | ./data/dev.conll   |
 | 参数alpha | 0.3                |
 | 准确率    | 75.74%             |
-| 执行时间  | 19s              |
+| 执行时间  | 3s              |
 
 ##### (2)大数据测试
 
@@ -65,7 +65,7 @@ $ python src/HMM.py			#修改config.py中的参数
 | 测试集    | ./big-data/dev.conll   | ./big-data/test.conll  |
 | 参数alpha | 0.01                   | 0.01                   |
 | 准确率    | 88.35%                 | 88.50%                 |
-| 执行时间  | 63.8s                  | 88.7s                  |
+| 执行时间  | 40s                  | 58s                  |
 
 
 
